@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobMap - Elderly Provider App</title>
+    <style>
+        /* --- CSS Reset & Basics --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #e9ecef; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        /* --- Mobile Container --- */
+        .mobile-app {
+            width: 100%; max-width: 400px; height: 800px;
+            background-color: #f9fbfb; position: relative;
+            overflow-y: auto; overflow-x: hidden;
+            border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 8px solid #333;
+        }
+
+        /* --- Login Screen Styles --- */
+        #login-screen {
+            height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 40px;
+            background: linear-gradient(135deg, #f9fbfb, #e6f2ee);
+        }
+        #home-screen{
+            height: 100%;
+        }
+        .login-logo { text-align: center; font-size: 2.5rem; font-weight: 800; color: #3b8273; margin-bottom: 10px; }
+        .login-subtitle { text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 40px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 1.05rem;}
+        .input-group input { 
+            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #ccc; 
+            font-size: 1.1rem; outline: none; transition: border-color 0.3s;
+        }
+        .input-group input:focus { border-color: #3b8273; }
+        .btn-login {
+            width: 100%; padding: 16px; background-color: #3b8273; color: white; border: none;
+            border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(59, 130, 115, 0.3); transition: transform 0.1s;
+        }
+        .btn-login:active { transform: scale(0.98); }
+
+        /* --- Header --- */
+        header {
+            background-color: #3b8273; color: white; padding: 35px 25px 25px;
+            border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-text { flex: 1; }
+        .greeting { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95rem; opacity: 0.9; font-weight: 400; }
+        .user-profile-bubble {
+            width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.8);
+            object-fit: cover; margin-left: 15px;
+        }
+
+        /* --- Main Content Area --- */
+        .content { padding: 25px; padding-bottom: 100px; padding-bottom: 1rem; }
+
+        /* --- Status Toggle --- */
+        .status-card {
+            background-color: #f2fcf5; border: 1px solid #d4eedd;
+            border-radius: 16px; padding: 18px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px;
+        }
+        .status-text { font-weight: 700; color: #2e6f63; font-size: 1.1rem; }
+        .status-subtext { font-size: 0.85rem; color: #555; margin-top: 4px; }
+        .toggle-btn {
+            background-color: #4CAF50; color: white; border: none;
+            padding: 10px 20px; border-radius: 20px; font-weight: 700; font-size: 0.95rem;
+        }
+
+        .section-title { color: #2e6f63; font-size: 1.2rem; margin-bottom: 15px; font-weight: 800; }
+
+        /* --- Empty State --- */
+        .empty-state {
+            text-align: center; padding: 40px 20px; display: none; /* Hidden by default */
+        }
+        .empty-icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+        .empty-text { font-size: 1.2rem; font-weight: 700; color: #555; }
+        .empty-subtext { font-size: 1rem; color: #888; margin-top: 8px; }
+
+        /* --- Job Card --- */
+        .job-card {
+            background: white; border-radius: 16px; padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px;
+            border: 1px solid #eaeaea; transition: all 0.4s ease; /* For animation */
+        }
+
+        /* Requester Profile Section */
+        .requester-info { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
+        .requester-bubble { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; }
+        .requester-details { flex: 1; }
+        .requester-name { font-weight: 700; font-size: 1.05rem; color: #222; margin-bottom: 2px;}
+        .requester-meta { display: flex; align-items: center; justify-content: space-between; }
+        .requester-age { font-size: 0.9rem; color: #666; }
+        
+        .score-badge {
+            background-color: #fff8e1; color: #f5a623; font-weight: 700;
+            font-size: 0.85rem; padding: 4px 8px; border-radius: 10px; display: flex; align-items: center;
+        }
+        .star-icon { margin-right: 4px; font-size: 0.9rem;}
+
+        /* Job Specifics */
+        .job-main-info { margin-bottom: 20px; }
+        .job-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .job-title-clean { font-size: 1.15rem; font-weight: 800; color: #333; }
+        .job-distance { color: #555; font-size: 0.85rem; font-weight: 600; background: #f1f3f5; padding: 6px 10px; border-radius: 12px; white-space: nowrap; margin-left: 10px;}
+        .job-description { color: #555; font-size: 0.95rem; line-height: 1.5; }
+
+        /* Actions */
+        .job-actions { display: flex; gap: 12px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.3s ease;}
+        .btn-accept { background-color: #3b8273; color: white; }
+        .btn-decline { background-color: #fff0f3; color: #d32f2f; }
+
+        /* --- Bottom Nav --- */
+        .bottom-nav {
+            position: sticky; bottom: 0; width: 100%; background: white;
+            display: flex; justify-content: space-around; padding: 15px 0;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.03); border-top: 1px solid #eaeaea;
+            border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; margin-top: 20rem;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #999; text-decoration: none; font-size: 0.75rem; gap: 4px; font-weight: 600;}
+        .nav-item.active { color: #3b8273; }
+        .nav-icon { font-size: 1.4rem; }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-app">
+        
+        <div id="login-screen">
+            <div class="login-logo">Dor-2-Dor</div>
+            <div class="login-subtitle">Connect with your neighborhood</div>
+            
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" value="rami@grade100.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" value="12345678">
+            </div>
+
+            <button class="btn-login" id="login-btn">Log In</button>
+        </div>
+
+        <div id="home-screen" style="display: none;">
+            <header>
+                <div class="header-text">
+                    <div class="greeting">Hello, David 👋</div>
+                    <div class="subtitle">Ready to help a neighbor today?</div>
+                </div>
+                <img src="https://i.pravatar.cc/150?img=70" alt="David's Profile" class="user-profile-bubble">
+            </header>
+
+            <div class="content">
+                
+                <div class="status-card">
+                    <div>
+                        <div class="status-text">I'm available now</div>
+                        <div class="status-subtext">Visible to neighbors nearby</div>
+                    </div>
+                    <button class="toggle-btn">Active</button>
+                </div>
+
+                <h2 class="section-title">New Requests Nearby</h2>
+
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">☕</div>
+                    <div class="empty-text">No new requests</div>
+                    <div class="empty-subtext">Take a break! We'll notify you when a neighbor needs help.</div>
+                </div>
+
+                <div id="job-list">
+                    <div class="job-card">
+                        <div class="requester-info">
+                            <img src="https://i.pravatar.cc/150?img=32" alt="Maya" class="requester-bubble">
+                            <div class="requester-details">
+                                <div class="requester-name">Maya</div>
+                                <div class="requester-meta">
+                                    <span class="requester-age">Student, 24</span>
+                                    <div class="score-badge">
+                                        <span class="star-icon">★</span> 4.9
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="job-main-info">
+                            <div class="job-title-row">
+                                <div class="job-title-clean">Hang 2 Shelves</div>
+                                <div class="job-distance">📍 300m walk</div>
+                            </div>
+                            <div class="job-description">
+                                I need help drilling into a concrete wall to hang two small wooden shelves in my living room. I have the shelves but no drill.
+                            </div>
+                        </div>
+
+                        <div class="job-actions">
+                            <button class="btn btn-decline">Pass</button>
+                            <button class="btn btn-accept">Accept Request</button>
+                        </div>
+                    </div>
+
+                    <div class="job-card">
+                         <div class="requester-info">
+                            <img src="https://i.pravatar.cc/150?img=26" alt="Yonatan" class="requester-bubble">
+                            <div class="requester-details">
+                                <div class="requester-name">Yonatan</div>
+                                <div class="requester-meta">
+                                    <span class="requester-age">Young Professional, 27</span>
+                                    <div class="score-badge">
+                                        <span class="star-icon">★</span> 4.7
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="job-main-info">
+                            <div class="job-title-row">
+                                <div class="job-title-clean">Fix Jacket Zipper</div>
+                                <div class="job-distance">📍 800m walk</div>
+                            </div>
+                            <div class="job-description">
+                                My favorite winter jacket has a stuck zipper that came off the track. Hoping someone with sewing skills can save it!
+                            </div>
+                        </div>
+                        
+                        <div class="job-actions">
+                            <button class="btn btn-decline">Pass</button>
+                            <button class="btn btn-accept">Accept Request</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <nav class="bottom-nav">
+                <a href="#" class="nav-item active">
+                    <span class="nav-icon">🏠</span><span>Home</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">🗓️</span><span>Schedule</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">💬</span><span>Chats</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">⚙️</span><span>Settings</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Navigation: Login to Home ---
+        const loginBtn = document.getElementById('login-btn');
+        const loginScreen = document.getElementById('login-screen');
+        const homeScreen = document.getElementById('home-screen');
+
+        loginBtn.addEventListener('click', () => {
+            loginScreen.style.display = 'none';
+            homeScreen.style.display = 'block';
+        });
+
+        // --- 2. Check for empty list ---
+        function checkEmptyState() {
+            const jobCards = document.querySelectorAll('.job-card');
+            let isListEmpty = true;
+            
+            // Check if any card is still visible
+            jobCards.forEach(card => {
+                if (card.style.display !== 'none') {
+                    isListEmpty = false;
+                }
+            });
+
+            // If no cards are visible, show the empty state message
+            if (isListEmpty) {
+                document.getElementById('empty-state').style.display = 'block';
+                document.querySelector('.section-title').style.display = 'none'; // Hide "New Requests" title
+            }
+        }
+
+        // --- 3. Handle Pass / Accept Buttons ---
+        const declineButtons = document.querySelectorAll('.btn-decline');
+        const acceptButtons = document.querySelectorAll('.btn-accept');
+
+        // Pass Button Logic
+        declineButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.job-card');
+                card.style.display = 'none'; // Remove instantly
+                checkEmptyState();
+            });
+        });
+
+        // Accept Button Logic (With Animation)
+        acceptButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.job-card');
+                
+                // Animation Step 1: Change Button Style
+                this.innerHTML = "Accepted! ✔️";
+                this.style.backgroundColor = "#275c50"; // Darker green
+                card.style.transform = "scale(1.02)"; // Slight pop out effect
+                card.style.borderColor = "#3b8273"; 
+                
+                // Animation Step 2: Fade out and remove after 1 second
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                        checkEmptyState();
+                    }, 400); // Wait for CSS fade out transition
+                }, 1000); // Read time for "Accepted!"
+            });
+        });
+    </script>
+</body>
+</html>
